@@ -16,12 +16,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\anglesharp\AngleSharpBuilder\AngleSharpBuilder.csproj">
-      <Name>AngleSharpBuilder</Name>
       <Private>False</Private>
       <SetTargetFramework>TargetFramework=netcoreapp2.0</SetTargetFramework>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <Reference Include="..\anglesharp\AngleSharpBuilder\dist\Microsoft.AspNetCore.Blazor.AngleSharp.dll" />
+    <Reference Include="Microsoft.AspNetCore.Blazor.AngleSharp">
+      <HintPath>..\anglesharp\AngleSharpBuilder\dist\Microsoft.AspNetCore.Blazor.AngleSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

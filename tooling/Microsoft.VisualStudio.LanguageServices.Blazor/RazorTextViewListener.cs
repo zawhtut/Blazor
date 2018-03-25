@@ -18,42 +18,38 @@ namespace Microsoft.VisualStudio.LanguageServices.Blazor
 {
     [ContentType(RazorLanguage.ContentType)]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
-    [Export(typeof(IWpfTextViewConnectionListener))]
-    internal class BlazorOpenDocumentTracker : IWpfTextViewConnectionListener
+    [Export(typeof(ITextViewConnectionListener))]
+    internal class BlazorOpenDocumentTracker : ITextViewConnectionListener
     {
         private readonly RazorEditorFactoryService _editorFactory;
-        private readonly Workspace _workspace;
-
-        private readonly HashSet<IWpfTextView> _openViews;
+        private readonly IWorkspaceAccessor _workspaceAccessor;
+        
+        private readonly HashSet<ITextView> _openViews;
+        private readonly HashSet<Workspace> _workspaces;
 
         private Type _codeGeneratorType;
 
         [ImportingConstructor]
-        public BlazorOpenDocumentTracker(
-            RazorEditorFactoryService editorFactory,
-            [Import(typeof(VisualStudioWorkspace))] Workspace workspace)
+        public BlazorOpenDocumentTracker(RazorEditorFactoryService editorFactory, IWorkspaceAccessor workspaceAccessor)
         {
             if (editorFactory == null)
             {
                 throw new ArgumentNullException(nameof(editorFactory));
             }
 
-            if (workspace == null)
+            if (workspaceAccessor == null)
             {
-                throw new ArgumentNullException(nameof(workspace));
+                throw new ArgumentNullException(nameof(workspaceAccessor));
             }
 
             _editorFactory = editorFactory;
-            _workspace = workspace;
+            _workspaceAccessor = workspaceAccessor;
 
-            _openViews = new HashSet<IWpfTextView>();
-
-            _workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
+            _openViews = new HashSet<ITextView>();
+            _workspaces = new HashSet<Workspace>();
         }
-
-        public Workspace Workspace => _workspace;
-
-        public void SubjectBuffersConnected(IWpfTextView textView, ConnectionReason reason, Collection<ITextBuffer> subjectBuffers)
+              
+        public void SubjectBuffersConnected(ITextView textView, ConnectionReason reason, IReadOnlyCollection<ITextBuffer> subjectBuffers)
         {
             if (textView == null)
             {
@@ -66,9 +62,15 @@ namespace Microsoft.VisualStudio.LanguageServices.Blazor
             }
 
             _openViews.Add(textView);
+
+            var workspace = _workspaceAccessor.GetWorkspace(textView);
+            if (workspace != null && _workspaces.Add(workspace))
+            {
+                workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
+            }
         }
 
-        public void SubjectBuffersDisconnected(IWpfTextView textView, ConnectionReason reason, Collection<ITextBuffer> subjectBuffers)
+        public void SubjectBuffersDisconnected(ITextView textView, ConnectionReason reason, IReadOnlyCollection<ITextBuffer> subjectBuffers)
         {
             if (textView == null)
             {
@@ -81,8 +83,12 @@ namespace Microsoft.VisualStudio.LanguageServices.Blazor
             }
 
             _openViews.Remove(textView);
-        }
 
+            // We don't bother cleaning up our event registrations on workspaces right now. 
+            // There are very few of them, and only one we care about in VS for windows.
+        }
+        
+      
         // We're watching the Roslyn workspace for changes specifically because we want
         // to know when the language service has processed a file change.
         //
@@ -133,7 +139,10 @@ namespace Microsoft.VisualStudio.LanguageServices.Blazor
                 catch (Exception)
                 {
                     // If this fails, just unsubscribe. We won't be able to do our work, so just don't waste time.
-                    _workspace.WorkspaceChanged -= Workspace_WorkspaceChanged;
+                    foreach (var workspace in _workspaces)
+                    {
+                        workspace.WorkspaceChanged -= Workspace_WorkspaceChanged;
+                    }
                 }
             }
 
@@ -167,7 +176,10 @@ namespace Microsoft.VisualStudio.LanguageServices.Blazor
                 catch (Exception)
                 {
                     // If this fails, just unsubscribe. We won't be able to do our work, so just don't waste time.
-                    _workspace.WorkspaceChanged -= Workspace_WorkspaceChanged;
+                    foreach (var workspace in _workspaces)
+                    {
+                        workspace.WorkspaceChanged -= Workspace_WorkspaceChanged;
+                    }
                 }
             }
         }

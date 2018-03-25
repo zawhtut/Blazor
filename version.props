@@ -7,5 +7,17 @@
     <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' != 'rtm' ">$(VersionPrefix)-$(VersionSuffix)-final</PackageVersion>
     <BuildNumber Condition="'$(BuildNumber)' == ''">t000</BuildNumber>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+
+    <!-- VS for Mac does not like letters in package versions - this matches what we do for the VSIX-->
+    <AddinBuildNumber Condition="'$(BuildNumber)' == 't000'">999999</AddinBuildNumber>
+    <AddinBuildNumber Condition="'$(AddinBuildNumber)' == ''">$(BuildNumber)</AddinBuildNumber>
+
+    <!--
+      When changing the VSForMacVersion you must also update the following locations:
+      1. tooling/Microsoft.VisualStudio.Mac.BlazorAddin/BlazorAddin.cs Version property
+      2. MonoDevelop.Core and MonoDevelop.Ide version properties in tooling\Microsoft.VisualStudio.Mac.RazorAddin\Properties\_Manifest.addin.xml
+    -->
+    <VSForMacVersion>7.5.0</VSForMacVersion>
+    <AddinVersion>$(VSForMacVersion).$(AddinBuildNumber)</AddinVersion>
   </PropertyGroup>
 </Project>

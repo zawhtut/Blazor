@@ -42,7 +42,7 @@
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile-&gt;Count()) != 0 ">true</ShouldBeSigned>
         <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
@@ -73,5 +73,8 @@
 
   <ItemGroup>
     <Reference Include="..\anglesharp\AngleSharpBuilder\dist\Microsoft.AspNetCore.Blazor.AngleSharp.dll" />
+    <Reference Include="Microsoft.AspNetCore.Blazor.AngleSharp">
+      <HintPath>..\anglesharp\AngleSharpBuilder\dist\Microsoft.AspNetCore.Blazor.AngleSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

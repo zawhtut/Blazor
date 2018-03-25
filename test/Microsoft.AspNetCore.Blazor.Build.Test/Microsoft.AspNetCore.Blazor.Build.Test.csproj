@@ -43,6 +43,29 @@
     <ProjectReference Include="..\..\src\anglesharp\AngleSharpBuilder\AngleSharpBuilder.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.Blazor.Razor.Extensions\Microsoft.AspNetCore.Blazor.Razor.Extensions.csproj" />
     <Reference Include="Microsoft.AspNetCore.Blazor.AngleSharp" HintPath="..\..\src\anglesharp\AngleSharpBuilder\dist\Microsoft.AspNetCore.Blazor.AngleSharp.dll" />
+    <Reference Include="Microsoft.AspNetCore.Blazor.AngleSharp">
+      <HintPath>..\..\src\anglesharp\AngleSharpBuilder\dist\Microsoft.AspNetCore.Blazor.AngleSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="..\shared\AssertFrame.cs">
+      <Link>Helpers\AssertFrame.cs</Link>
+    </Compile>
+    <Compile Update="..\shared\AutoRenderComponent.cs">
+      <Link>Helpers\AutoRenderComponent.cs</Link>
+    </Compile>
+    <Compile Update="..\shared\CapturedBatch.cs">
+      <Link>Helpers\CapturedBatch.cs</Link>
+    </Compile>
+    <Compile Update="..\shared\IComponentExtensions.cs">
+      <Link>Helpers\IComponentExtensions.cs</Link>
+    </Compile>
+    <Compile Update="..\shared\TestRenderer.cs">
+      <Link>Helpers\TestRenderer.cs</Link>
+    </Compile>
+    <Compile Update="..\shared\TestServiceProvider.cs">
+      <Link>Helpers\TestServiceProvider.cs</Link>
+    </Compile>
+  </ItemGroup>
 </Project>
