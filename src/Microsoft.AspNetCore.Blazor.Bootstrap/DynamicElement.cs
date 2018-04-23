@@ -47,7 +47,7 @@ namespace Microsoft.AspNetCore.Blazor.Bootstrap
             _childContent = GetAndRemove<RenderFragment>(_attributesToRender, RenderTreeBuilder.ChildContent);
 
             TagName = GetAndRemove<string>(_attributesToRender, nameof (TagName))
-                ?? throw new InvalidOperationException($"No value was supplied for required parameter '{TagName}'.");
+                ?? throw new InvalidOperationException($"No value was supplied for required parameter '{nameof(TagName)}'.");
 
             // Combine any explicitly-supplied attributes with the remaining parameters
             var attributesParam = GetAndRemove<IReadOnlyDictionary<string, object>>(_attributesToRender, nameof(Attributes));
