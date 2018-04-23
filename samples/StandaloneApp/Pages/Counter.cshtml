@@ -4,13 +4,27 @@
 
 <p>Current count: @currentCount</p>
 
-<button class="btn btn-primary" onclick="@IncrementCount">Click me</button>
+<bsButtonGroup>
+    <bsButton onclick="() => UpdateCount(-1)">Decrement</bsButton>
+    <bsButton onclick="() => UpdateCount(1)">Increment</bsButton>
+</bsButtonGroup>
+
+<bsButtonGroup>
+    <bsButton onclick="() => UpdateCount(-1)">Decrement</bsButton>
+    <bsButton onclick="() => UpdateCount(1)">Increment</bsButton>
+    <bsButtonDropdown Text="Advanced" Style="BsStyle.Secondary">
+        <bsDropdownItem onclick="@(() => UpdateCount(100))">Increment 100</bsDropdownItem>
+        <bsDropdownItem onclick="@(() => UpdateCount(200))">Increment 200</bsDropdownItem>
+        <bsDropdownItem onclick="@(() => UpdateCount(300))">Increment 300</bsDropdownItem>
+    </bsButtonDropdown>
+</bsButtonGroup>
 
 @functions {
     int currentCount = 0;
 
-    void IncrementCount()
+    void UpdateCount(int offset)
     {
-        currentCount++;
+        currentCount += offset;
+        StateHasChanged(); // Workaround #656
     }
 }
