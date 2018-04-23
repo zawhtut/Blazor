@@ -23,9 +23,9 @@
     public bool Dismissible { get; set; }
 
     /// <summary>
-    /// Gets or sets the type of the alert. This influences its visual styling.
+    /// Gets or sets the visual style of the alert.
     /// </summary>
-    public AlertType Type { get; set; } = AlertType.Primary;
+    public BsStyle Style { get; set; } = BsStyle.Primary;
 
     /// <summary>
     /// Gets or sets an action to be invoked when the alert is dismissed.
@@ -35,7 +35,7 @@
     private bool _dismissed;
 
     private string CssClass()
-        => $"alert alert-{Type.ToString().ToLowerInvariant()} "
+        => $"alert alert-{Style.ToString().ToLowerInvariant()} "
         + (Dismissible ? "alert-dismissible" : string.Empty);
 
     void Dismiss()

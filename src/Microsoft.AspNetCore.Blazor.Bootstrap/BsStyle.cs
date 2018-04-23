@@ -4,47 +4,47 @@
 namespace Microsoft.AspNetCore.Blazor.Bootstrap
 {
     /// <summary>
-    /// Specifies the type of an alert.
+    /// Specifies the style of a Bootstrap UI item.
     /// </summary>
-    public enum AlertType
+    public enum BsStyle
     {
         /// <summary>
-        /// A primary alert.
+        /// A primary item.
         /// </summary>
         Primary,
 
         /// <summary>
-        /// A secondary alert.
+        /// A secondary item.
         /// </summary>
         Secondary,
 
         /// <summary>
-        /// An alert indicating success.
+        /// An item indicating success.
         /// </summary>
         Success,
 
         /// <summary>
-        /// An alert indicating danger.
+        /// An item indicating danger.
         /// </summary>
         Danger,
 
         /// <summary>
-        /// An alert indicating a warning.
+        /// An item indicating a warning.
         /// </summary>
         Warning,
 
         /// <summary>
-        /// An alert representing information.
+        /// An item representing information.
         /// </summary>
         Info,
 
         /// <summary>
-        /// An alert with light styling.
+        /// An item with light styling.
         /// </summary>
         Light,
 
         /// <summary>
-        /// An alert with dark styling.
+        /// An item with dark styling.
         /// </summary>
         Dark,
     }

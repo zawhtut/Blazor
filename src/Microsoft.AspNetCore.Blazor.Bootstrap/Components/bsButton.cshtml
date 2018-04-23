@@ -1,0 +1,28 @@
+﻿@inherits BootstrapComponentBase
+
+<DynamicElement TagName="button" class="@CssClass()" Attributes="@UnknownParameters" onclick="@HandleClick">
+    @ChildContent
+</DynamicElement>
+
+@functions {
+    public RenderFragment ChildContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets the visual style of the alert.
+    /// </summary>
+    public BsStyle Style { get; set; } = BsStyle.Primary;
+
+    /// <summary>
+    /// Gets or sets the action to invoke when the button is clicked.
+    /// </summary>
+    public Action OnClick { get; set; }
+
+    private string CssClass()
+        => $"btn btn-{Style.ToString().ToLowerInvariant()}";
+
+    void HandleClick()
+    {
+        Console.WriteLine("You clicked");
+        OnClick?.Invoke();
+    }
+}
