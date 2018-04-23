@@ -1,0 +1,9 @@
+﻿@inherits BootstrapComponentBase
+
+<div class="alert alert-primary" role="alert">
+    @ChildContent
+</div>
+
+@functions {
+    public RenderFragment ChildContent { get; set; }
+}
