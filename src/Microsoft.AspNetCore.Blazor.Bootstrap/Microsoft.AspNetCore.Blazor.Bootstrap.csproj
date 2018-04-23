@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.0-preview2-final" PrivateAssets="all" />
+    <ProjectReference Include="..\Microsoft.AspNetCore.Blazor.Browser\Microsoft.AspNetCore.Blazor.Browser.csproj" />
   </ItemGroup>
 
   <!-- Regular library packages use a <PackageReference> to Microsoft.AspNetCore.Blazor.Build instead. -->
