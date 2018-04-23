@@ -1,0 +1,9 @@
+﻿@inherits BootstrapComponentBase
+
+<DynamicElement TagName="div" class="dropdown-item" Attributes="@UnknownParameters">
+    @ChildContent
+</DynamicElement>
+
+@functions {
+    public RenderFragment ChildContent { get; set; }
+}

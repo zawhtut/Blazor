@@ -1,0 +1,38 @@
+﻿@inherits BootstrapComponentBase
+
+<DynamicElement TagName="div" class="btn-group" onclick="@HandleClick">
+    <button class="@ButtonCssClass()" Attributes="@UnknownParameters">
+        @Text
+    </button>
+    <div class="@DropdownCssClass()">
+        @ChildContent
+    </div>
+</DynamicElement>
+
+@functions {
+    public RenderFragment ChildContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets the visual style of the dropdown.
+    /// </summary>
+    public BsStyle Style { get; set; } = BsStyle.Primary;
+
+    /// <summary>
+    /// Gets or sets the text on the dropdown button.
+    /// </summary>
+    public string Text { get; set; }
+
+    private bool _isExpanded;
+
+    private string ButtonCssClass()
+        => $"btn btn-{Style.ToString().ToLowerInvariant()} dropdown-toggle";
+
+    private string DropdownCssClass()
+        => $"dropdown-menu {(_isExpanded ? "show" : string.Empty)}";
+
+    void HandleClick()
+    {
+        _isExpanded = !_isExpanded;
+        StateHasChanged(); // Workaround #656
+    }
+}
