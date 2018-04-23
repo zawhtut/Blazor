@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.Blazor.Bootstrap
     /// when you want to combine a set of attributes declared at compile time with
     /// another set determined at runtime.
     /// </summary>
-    public class DynamicElement : IComponent
+    public class DynamicElement : IComponent, IHandleEvent
     {
         /// <summary>
         /// Gets or sets the name of the element to render.
@@ -94,6 +94,13 @@ namespace Microsoft.AspNetCore.Blazor.Bootstrap
             }
             builder.AddContent(2, _childContent);
             builder.CloseElement();
+        }
+
+        /// <inheritdoc />
+        public void HandleEvent(UIEventHandler handler, UIEventArgs args)
+        {
+            // Implementing IHandleEvent as a workaround for https://github.com/aspnet/Blazor/issues/656
+            handler(args);
         }
     }
 }

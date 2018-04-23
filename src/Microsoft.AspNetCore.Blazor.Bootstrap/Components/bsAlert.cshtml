@@ -1,9 +1,33 @@
 ﻿@inherits BootstrapComponentBase
 
-<DynamicElement TagName="div" class="alert alert-primary" role="alert" Attributes="@UnknownParameters">
-    @ChildContent
-</DynamicElement>
+@if (!_dismissed)
+{
+    <DynamicElement TagName="div" class="@CssClass()" role="alert" Attributes="@UnknownParameters">
+        @ChildContent
+
+        @if (Dismissible)
+        {
+            <button onclick="@Dismiss" type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        }
+    </DynamicElement>
+}
 
 @functions {
     public RenderFragment ChildContent { get; set; }
+
+    public bool Dismissible { get; set; }
+
+    private bool _dismissed;
+
+    private string CssClass()
+        => "alert alert-primary "
+        + (Dismissible ? "alert-dismissible" : string.Empty);
+
+    void Dismiss()
+    {
+        _dismissed = true;
+        StateHasChanged(); // Workaround for https://github.com/aspnet/Blazor/issues/656
+    }
 }
