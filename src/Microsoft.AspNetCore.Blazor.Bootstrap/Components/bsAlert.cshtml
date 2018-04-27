@@ -2,7 +2,7 @@
 
 @if (!_dismissed)
 {
-    <DynamicElement TagName="div" class="@CssClass()" role="alert" Attributes="@UnknownParameters">
+    <DynamicElement TagName="div" class="@CssClass()" role="alert" Attributes="@UnknownParameters" ref="_mainElement">
         @ChildContent
 
         @if (Dismissible)
@@ -33,6 +33,7 @@
     public Action OnDismiss { get; set; }
 
     private bool _dismissed;
+    private DynamicElement _mainElement;
 
     private string CssClass()
         => $"alert alert-{Style.ToString().ToLowerInvariant()} "
@@ -43,5 +44,10 @@
         _dismissed = true;
         OnDismiss?.Invoke();
         StateHasChanged(); // Workaround for https://github.com/aspnet/Blazor/issues/656
+    }
+
+    protected override void OnAfterRender()
+    {
+        InvokeOwnJs("_init", _mainElement.ElementRef);
     }
 }

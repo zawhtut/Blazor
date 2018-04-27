@@ -30,6 +30,11 @@ namespace Microsoft.AspNetCore.Blazor.Bootstrap
             set => throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets the <see cref="Microsoft.AspNetCore.Blazor.ElementRef"/>.
+        /// </summary>
+        public ElementRef ElementRef { get; private set; }
+
         private RenderHandle _renderHandle;
         private IDictionary<string, object> _attributesToRender;
         private RenderFragment _childContent;
@@ -92,7 +97,8 @@ namespace Microsoft.AspNetCore.Blazor.Bootstrap
             {
                 builder.AddAttribute(1, kvp.Key, kvp.Value);
             }
-            builder.AddContent(2, _childContent);
+            builder.AddElementReferenceCapture(2, capturedRef => { ElementRef = capturedRef; });
+            builder.AddContent(3, _childContent);
             builder.CloseElement();
         }
 
