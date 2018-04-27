@@ -1,5 +1,6 @@
 ﻿@inherits BootstrapComponentBase
 
+<!-- TODO: outer thing should not be DynamicElement. That should be used for the button with Attributes instead. -->
 <DynamicElement TagName="div" class="btn-group" onclick="@HandleClick">
     <button class="@ButtonCssClass()" Attributes="@UnknownParameters">
         @Text
