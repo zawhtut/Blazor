@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Blazor.Server;
 using Microsoft.AspNetCore.Blazor.Server.AutoRebuild;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
 using System.Linq;
@@ -45,11 +46,38 @@ namespace Microsoft.AspNetCore.Builder
 
             appBuilder.Use(async (context, next) =>
             {
+                if (context.Request.Path.StartsWithSegments("/_awaitbuild"))
+                {
+                    // Here we know we have to join an existing in-process build.
+                    // IDEA: During this phase, we could get back realtime build output and stream
+                    // it to the browser. That would not only give the dev something to look at, but
+                    // (at least partially) solves how to get build failure info to them.
+                    var since = new DateTime(long.Parse(context.Request.Query["since"]));
+                    await rebuildService.PerformRebuildAsync(
+                            config.SourceMSBuildPath,
+                            since);
+                    context.Response.Redirect("/"); // TODO: Redirect to originally-requested URL
+                    return;
+                }
+
                 try
                 {
                     var token = buildToken;
                     if (token.BuildTask == null)
                     {
+                        // SUMMARY: When we're going to trigger a build, don't try to keep the request
+                        // hanging open, because VS will kill the server. Instead, return some HTML that
+                        // will make the browser start a new request, because that's OK. Although it looks
+                        // like there's a race condition here (what if the new request starts before VS has
+                        // killed the old server?) it doesn't appear there really is, because the browser
+                        // won't start acting on the meta-refresh until the response has finished arriving,
+                        // which won't happen until VS has killed the old server.
+                        await context.Response.WriteAsync(@"
+                        <html><head>
+                            <meta http-equiv=""refresh"" content=""0;url=/_awaitbuild?since=" + token.LastChange.Ticks + @""">
+                        </head><body>building</body></html>
+                        ");
+
                         // The build is out of date, but a new build is not yet started.
                         //
                         // We can count on VS to only allow one build at a time, this is a safe race
