@@ -33,7 +33,7 @@ function boot() {
         uriHelperFunctions.getBaseURI()
       );
     })
-    .catch(err => console.error(err.toString()));
+    .catch(err => console.error(err));
 }
 
 boot();
