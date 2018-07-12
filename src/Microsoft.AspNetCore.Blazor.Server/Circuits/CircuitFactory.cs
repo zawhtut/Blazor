@@ -8,6 +8,6 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 {
     internal abstract class CircuitFactory
     {
-        public abstract CircuitHost CreateCircuit(HttpContext httpContext, IClientProxy client);
+        public abstract CircuitHost CreateCircuitHost(HttpContext httpContext, IClientProxy client);
     }
 }

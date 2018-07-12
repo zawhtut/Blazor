@@ -11,7 +11,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 {
     internal class BlazorHub : Hub
     {
-        private static readonly object CircuitKey = "circuit";
+        private static readonly object CircuitKey = new object();
 
         private readonly CircuitFactory _circuitFactory;
 
@@ -34,7 +34,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
         public async Task StartCircuit(string uriAbsolute, string baseUriAbsolute)
         {
-            var circuitHost = _circuitFactory.CreateCircuit(Context.GetHttpContext(), Clients.Caller);
+            var circuitHost = _circuitFactory.CreateCircuitHost(Context.GetHttpContext(), Clients.Caller);
 
             var uriHelper = circuitHost.Services.GetRequiredService<IUriHelper>() as RemoteUriHelper;
             if (uriHelper != null)

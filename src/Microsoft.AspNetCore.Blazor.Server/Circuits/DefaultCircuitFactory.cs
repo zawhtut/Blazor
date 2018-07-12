@@ -24,7 +24,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
         public List<(PathString path, Action<BrowserRenderer> config)> StartupActions { get; }
 
-        public override CircuitHost CreateCircuit(HttpContext httpContext, IClientProxy client)
+        public override CircuitHost CreateCircuitHost(HttpContext httpContext, IClientProxy client)
         {
             Action<BrowserRenderer> config = null;
             for (var i = 0; i < StartupActions.Count; i++)
