@@ -12,7 +12,7 @@ namespace HostedInAspNet.Server
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddBlazorCircuits();
+            services.AddServerSideBlazor();
 
             services.AddHttpClient();
             services.AddScoped<HttpClient>(s => s.GetRequiredService<IHttpClientFactory>().CreateClient());
@@ -25,7 +25,7 @@ namespace HostedInAspNet.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseBlazorOnTheServer(renderer =>
+            app.UseServerSideBlazor(renderer =>
             {
                 renderer.AddComponent<StandaloneApp.App>("app");
             });

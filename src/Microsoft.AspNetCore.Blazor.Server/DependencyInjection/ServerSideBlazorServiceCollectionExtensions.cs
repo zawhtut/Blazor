@@ -3,34 +3,33 @@
 
 using System;
 using Microsoft.AspNetCore.Blazor;
-using Microsoft.AspNetCore.Blazor.Server;
 using Microsoft.AspNetCore.Blazor.Server.Circuits;
 using Microsoft.AspNetCore.Blazor.Services;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extension methods to configure an <see cref="IServiceCollection"/> for Blazor circuits.
+    /// Extension methods to configure an <see cref="IServiceCollection"/> for Server-Side Blazor.
     /// </summary>
-    public static class BlazorCircuitsServiceCollectionExtensions
+    public static class ServerSideBlazorServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds Blazor circuits services to the service collection.
+        /// Adds Server-Side Blazor services to the service collection.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/>.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddBlazorCircuits(this IServiceCollection services)
+        public static IServiceCollection AddServerSideBlazor(this IServiceCollection services)
         {
-            return AddBlazorCircuits(services, null);
+            return AddServerSideBlazor(services, null);
         }
 
         /// <summary>
-        /// Adds Blazor circuits services to the service collection.
+        /// Adds Server-Side Blazor services to the service collection.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/>.</param>
-        /// <param name="configure">A delegate to configure the <see cref="BlazorCircuitsOptions"/>.</param>
+        /// <param name="configure">A delegate to configure the <see cref="ServerSideBlazorOptions"/>.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddBlazorCircuits(this IServiceCollection services, Action<BlazorCircuitsOptions> configure)
+        public static IServiceCollection AddServerSideBlazor(this IServiceCollection services, Action<ServerSideBlazorOptions> configure)
         {
             services.AddSingleton<CircuitFactory, DefaultCircuitFactory>();
             services.AddScoped<ICircuitAccessor, DefaultCircuitAccessor>();
@@ -51,9 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure(configure);
             }
 
-
             return services;
         }
-
     }
 }

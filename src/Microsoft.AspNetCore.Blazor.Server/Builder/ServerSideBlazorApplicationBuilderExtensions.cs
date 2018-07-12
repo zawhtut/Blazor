@@ -9,15 +9,17 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.AspNetCore.Builder
 {
     /// <summary>
-    /// Extension methods to configure an <see cref="IApplicationBuilder"/> for Blazor circuits.
+    /// Extension methods to configure an <see cref="IApplicationBuilder"/> for Server-Side Blazor.
     /// </summary>
-    public static class BlazorCircuitsApplicationBuilderExtensions
+    public static class ServerSideBlazorApplicationBuilderExtensions
     {
         /// <summary>
-        /// Temporary vague approximation to server-side execution needed so I can
-        /// build the rest of the interop.
-        /// </summary>  
-        public static IApplicationBuilder UseBlazorOnTheServer(
+        /// Registers middleware for Server-Side Blazor.
+        /// </summary>
+        /// <param name="builder">The <see cref="IApplicationBuilder"/>.</param>
+        /// <param name="startupAction">A delegate used to configure the renderer.</param>
+        /// <returns>The <see cref="IApplicationBuilder"/>.</returns>
+        public static IApplicationBuilder UseServerSideBlazor(
             this IApplicationBuilder builder,
             Action<BrowserRenderer> startupAction)
         {

@@ -4,9 +4,9 @@
 namespace Microsoft.AspNetCore.Blazor
 {
     /// <summary>
-    /// Options for Blazor circuits.
+    /// Options for Server-Side Blazor.
     /// </summary>
-    public class BlazorCircuitsOptions
+    public class ServerSideBlazorOptions
     {
     }
 }
