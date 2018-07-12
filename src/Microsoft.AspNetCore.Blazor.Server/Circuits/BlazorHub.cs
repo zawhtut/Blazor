@@ -37,10 +37,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
             var circuitHost = _circuitFactory.CreateCircuitHost(Context.GetHttpContext(), Clients.Caller);
 
             var uriHelper = (RemoteUriHelper)circuitHost.Services.GetRequiredService<IUriHelper>();
-            if (uriHelper != null)
-            {
-                uriHelper.Initialize(uriAbsolute, baseUriAbsolute);
-            }
+            uriHelper.Initialize(uriAbsolute, baseUriAbsolute);
 
             await circuitHost.InitializeAsync();
             CircuitHost = circuitHost;
