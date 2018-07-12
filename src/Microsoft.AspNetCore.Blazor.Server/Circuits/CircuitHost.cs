@@ -93,6 +93,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
         public void Dispose()
         {
+            Scope.Dispose();
         }
 
         private void AssertInitialized()
