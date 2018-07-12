@@ -51,7 +51,8 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
         {
             await SynchronizationContext.Invoke(() =>
             {
-                Microsoft.JSInterop.JSRuntime.SetCurrentJSRuntime(JSRuntime);
+                Circuit.SetCurrentCircuit(Circuit);
+
                 _configureRenderer(Renderer);
             });
 
@@ -66,7 +67,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
             {
                 await SynchronizationContext.Invoke(() =>
                 {
-                    Microsoft.JSInterop.JSRuntime.SetCurrentJSRuntime(JSRuntime);
+                    Circuit.SetCurrentCircuit(Circuit);
 
                     switch (methodIdentifier)
                     {
