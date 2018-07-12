@@ -19,23 +19,14 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
         {
             _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
-            StartupActions = new List<(PathString path, Action<BrowserRenderer> config)>();
+            StartupActions = new Dictionary<PathString, Action<BrowserRenderer>>();
         }
 
-        public List<(PathString path, Action<BrowserRenderer> config)> StartupActions { get; }
+        public Dictionary<PathString, Action<BrowserRenderer>> StartupActions { get; }
 
         public override CircuitHost CreateCircuitHost(HttpContext httpContext, IClientProxy client)
         {
-            Action<BrowserRenderer> config = null;
-            for (var i = 0; i < StartupActions.Count; i++)
-            {
-                if (httpContext.Request.Path.StartsWithSegments(StartupActions[i].path))
-                {
-                    config = StartupActions[i].config;
-                }
-            }
-
-            if (config == null)
+            if (!StartupActions.TryGetValue(httpContext.Request.Path, out var config))
             {
                 var message = $"Could not find a Blazor startup action for request path {httpContext.Request.Path}";
                 throw new InvalidOperationException(message);
