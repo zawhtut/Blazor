@@ -26,7 +26,7 @@ namespace Microsoft.AspNetCore.Builder
             var endpoint = "/_blazor";
 
             var factory = (DefaultCircuitFactory)builder.ApplicationServices.GetRequiredService<CircuitFactory>();
-            factory.StartupActions.Add((endpoint, startupAction));
+            factory.StartupActions.Add(endpoint, startupAction);
 
             builder.UseSignalR(route => route.MapHub<BlazorHub>(endpoint));
 
