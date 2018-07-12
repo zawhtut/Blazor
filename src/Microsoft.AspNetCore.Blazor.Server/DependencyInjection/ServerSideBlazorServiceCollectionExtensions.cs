@@ -5,6 +5,7 @@ using System;
 using Microsoft.AspNetCore.Blazor;
 using Microsoft.AspNetCore.Blazor.Server.Circuits;
 using Microsoft.AspNetCore.Blazor.Services;
+using Microsoft.JSInterop;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -33,7 +34,11 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddSingleton<CircuitFactory, DefaultCircuitFactory>();
             services.AddScoped<ICircuitAccessor, DefaultCircuitAccessor>();
+            services.AddScoped<Circuit>(s => s.GetRequiredService<ICircuitAccessor>().Circuit);
+
             services.AddScoped<IJSRuntimeAccessor, DefaultJSRuntimeAccessor>();
+            services.AddScoped<IJSRuntime>(s => s.GetRequiredService<IJSRuntimeAccessor>().JSRuntime);
+
             services.AddScoped<IUriHelper, RemoteUriHelper>();
 
             services.AddSignalR().AddMessagePackProtocol(options =>

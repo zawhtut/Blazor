@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.AspNetCore.Blazor.Services;
+using Microsoft.JSInterop;
 
 namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 {
@@ -12,7 +13,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
     {
         private const string _functionPrefix = "Blazor._internal.uriHelper.";
 
-        private readonly IJSRuntimeAccessor _jsRuntimeAccessor;
+        private readonly IJSRuntime _jsRuntime;
         private string _uriAbsolute;
 
         // These two are always kept in sync. We store both representations to
@@ -20,9 +21,9 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
         private Uri _baseUriWithTrailingSlash;
         private string _baseUriStringWithTrailingSlash;
 
-        public RemoteUriHelper(IJSRuntimeAccessor jsRuntimeAccessor)
+        public RemoteUriHelper(IJSRuntime jsRuntime)
         {
-            _jsRuntimeAccessor = jsRuntimeAccessor ?? throw new ArgumentNullException(nameof(jsRuntimeAccessor));
+            _jsRuntime = jsRuntime;
         }
 
         public void Initialize(string uriAbsolute, string baseUriAbsolute)
@@ -32,7 +33,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
             _uriAbsolute = uriAbsolute;
 
-            _jsRuntimeAccessor.JSRuntime.InvokeAsync<object>(_functionPrefix + "enableNavigationInterception");
+            _jsRuntime.InvokeAsync<object>(_functionPrefix + "enableNavigationInterception");
         }
 
         public event EventHandler<string> OnLocationChanged;
@@ -43,7 +44,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
         public void NavigateTo(string uri)
         {
-            _jsRuntimeAccessor.JSRuntime.InvokeAsync<object>(_functionPrefix + "navigateTo", uri);
+            _jsRuntime.InvokeAsync<object>(_functionPrefix + "navigateTo", uri);
         }
 
         public Uri ToAbsoluteUri(string relativeUri)
