@@ -19,10 +19,10 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
         {
             _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
-            StartupActions = new Dictionary<PathString, Action<BrowserRenderer>>();
+            StartupActions = new Dictionary<PathString, Action<RemoteRenderer>>();
         }
 
-        public Dictionary<PathString, Action<BrowserRenderer>> StartupActions { get; }
+        public Dictionary<PathString, Action<RemoteRenderer>> StartupActions { get; }
 
         public override CircuitHost CreateCircuitHost(HttpContext httpContext, IClientProxy client)
         {
@@ -33,8 +33,8 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
             }
 
             var scope = _scopeFactory.CreateScope();
-            var renderer = new BrowserRenderer(scope.ServiceProvider);
             var jsRuntime = new RemoteJSRuntime(client);
+            var renderer = new RemoteRenderer(scope.ServiceProvider, jsRuntime, client);
             var synchronizationContext = new CircuitSynchronizationContext();
 
             var circuitHost = new CircuitHost(scope, renderer, config, jsRuntime, synchronizationContext);

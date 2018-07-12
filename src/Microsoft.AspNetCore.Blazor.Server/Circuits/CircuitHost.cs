@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Blazor.Browser.Rendering;
+using Microsoft.AspNetCore.Blazor.Rendering;
 using Microsoft.AspNetCore.Blazor.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
@@ -15,12 +16,12 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
         public event UnhandledExceptionEventHandler UnhandledException;
 
         private bool _isInitialized;
-        private Action<BrowserRenderer> _configureRenderer;
+        private Action<RemoteRenderer> _configureRenderer;
 
         public CircuitHost(
             IServiceScope scope,
-            BrowserRenderer renderer,
-            Action<BrowserRenderer> configureRenderer,
+            RemoteRenderer renderer,
+            Action<RemoteRenderer> configureRenderer,
             IJSRuntime jsRuntime,
             CircuitSynchronizationContext synchronizationContext)
         {
@@ -39,7 +40,7 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
         public IJSRuntime JSRuntime { get; }
 
-        public BrowserRenderer Renderer { get; }
+        public RemoteRenderer Renderer { get; }
 
         public IServiceScope Scope { get; }
 

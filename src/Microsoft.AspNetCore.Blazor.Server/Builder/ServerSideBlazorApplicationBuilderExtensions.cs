@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>The <see cref="IApplicationBuilder"/>.</returns>
         public static IApplicationBuilder UseServerSideBlazor(
             this IApplicationBuilder builder,
-            Action<BrowserRenderer> startupAction)
+            Action<RemoteRenderer> startupAction)
         {
             var endpoint = "/_blazor";
 
