@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -18,6 +17,7 @@ namespace Microsoft.AspNetCore.Blazor.Rendering
     public class RendererRegistry
     {
         private static AsyncLocal<RendererRegistry> _current;
+        private static readonly RendererRegistry _globalRegistry;
 
         // By default the registry will be set to a default value. This means that
         // things will 'just work when running in the browser.
@@ -28,25 +28,19 @@ namespace Microsoft.AspNetCore.Blazor.Rendering
         static RendererRegistry()
         {
             _current = new AsyncLocal<RendererRegistry>();
-            _current.Value = new RendererRegistry(); 
+            _globalRegistry = new RendererRegistry(); 
         }
-
 
         /// <summary>
         /// Framework infrastructure, not intended to be used by application code.
         /// </summary>
-        public static RendererRegistry Current => _current.Value;
+        public static RendererRegistry Current => _current.Value ?? _globalRegistry;
 
         /// <summary>
         /// Framework infrastructure, not intended by used by application code.
         /// </summary>
         public static void SetCurrentRendererRegistry(RendererRegistry registry)
         {
-            if (registry == null)
-            {
-                throw new ArgumentNullException(nameof(registry));
-            }
-
             _current.Value = registry;
         }
 
