@@ -3,15 +3,21 @@
 
 using System;
 using Microsoft.AspNetCore.Blazor.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using Interop = Microsoft.AspNetCore.Blazor.Browser.Services.BrowserUriHelperInterop;
 
 namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 {
-    // TODO: Stop duplicating all this implementation.
-    // Maybe have a UriHelperBase abstract base class
-    internal class RemoteUriHelper : IUriHelper
+    /// <summary>
+    /// A Server-Side Blazor implemenation of <see cref="IUriHelper"/>.
+    /// </summary>
+    public class RemoteUriHelper : IUriHelper
     {
-        private const string _functionPrefix = "Blazor._internal.uriHelper.";
+        /// <summary>
+        /// An event that fires when the navigation location has changed.
+        /// </summary>
+        public event EventHandler<string> OnLocationChanged;
 
         private readonly IJSRuntime _jsRuntime;
         private string _uriAbsolute;
@@ -21,11 +27,20 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
         private Uri _baseUriWithTrailingSlash;
         private string _baseUriStringWithTrailingSlash;
 
+        /// <summary>
+        /// Creates a new <see cref="RemoteUriHelper"/>.
+        /// </summary>
+        /// <param name="jsRuntime"></param>
         public RemoteUriHelper(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
         }
 
+        /// <summary>
+        /// Initializes the <see cref="RemoteUriHelper"/>.
+        /// </summary>
+        /// <param name="uriAbsolute">The absolute URI of the current page.</param>
+        /// <param name="baseUriAbsolute">The absolute base URI of the current page.</param>
         public void Initialize(string uriAbsolute, string baseUriAbsolute)
         {
             _baseUriStringWithTrailingSlash = ToBaseUri(baseUriAbsolute);
@@ -33,32 +48,78 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
             _uriAbsolute = uriAbsolute;
 
-            _jsRuntime.InvokeAsync<object>(_functionPrefix + "enableNavigationInterception");
+            _jsRuntime.InvokeAsync<object>(
+                Interop.EnableNavigationInterception,
+                typeof(RemoteUriHelper).Assembly.GetName().Name,
+                nameof(NotifyLocationChanged));
         }
 
-        public event EventHandler<string> OnLocationChanged;
+        /// <summary>
+        /// For framework use only.
+        /// </summary>
+        [JSInvokable(nameof(NotifyLocationChanged))]
+        public static void NotifyLocationChanged(string uriAbsolute)
+        {
+            var circuit = Circuit.Current;
+            if (circuit == null)
+            {
+                var message = $"{nameof(NotifyLocationChanged)} called without a circuit.";
+                throw new InvalidOperationException(message);
+            }
 
+            var uriHelper = (RemoteUriHelper)circuit.Services.GetRequiredService<IUriHelper>();
+
+            uriHelper._uriAbsolute = uriAbsolute;
+            uriHelper.OnLocationChanged?.Invoke(uriHelper, uriAbsolute);
+        }
+
+        /// <summary>
+        /// Gets the current absolute URI.
+        /// </summary>
+        /// <returns>The current absolute URI.</returns>
         public string GetAbsoluteUri() => _uriAbsolute;
 
+        /// <summary>
+        /// Gets the base URI (with trailing slash) that can be prepended before relative URI paths to produce an absolute URI.
+        /// Typically this corresponds to the 'href' attribute on the document's &lt;base&gt; element.
+        /// </summary>
+        /// <returns>The URI prefix, which has a trailing slash.</returns>
         public string GetBaseUri() => _baseUriStringWithTrailingSlash;
 
+        /// <summary>
+        /// Navigates to the specified URI.
+        /// </summary>
+        /// <param name="uri">The destination URI. This can be absolute, or relative to the base URI
+        /// (as returned by <see cref="GetBaseUri"/>).</param>
         public void NavigateTo(string uri)
         {
-            _jsRuntime.InvokeAsync<object>(_functionPrefix + "navigateTo", uri);
+            _jsRuntime.InvokeAsync<object>(Interop.NavigateTo, uri);
         }
 
-        public Uri ToAbsoluteUri(string relativeUri)
-            => new Uri(_baseUriWithTrailingSlash, relativeUri);
+        /// <summary>
+        /// Converts a relative URI into an absolute one (by resolving it
+        /// relative to the current absolute URI).
+        /// </summary>
+        /// <param name="href">The relative URI.</param>
+        /// <returns>The absolute URI.</returns>
+        public Uri ToAbsoluteUri(string href) => new Uri(_baseUriWithTrailingSlash, href);
 
-        public string ToBaseRelativePath(string baseUri, string absoluteUri)
+        /// <summary>
+        /// Given a base URI (e.g., one previously returned by <see cref="GetBaseUri"/>),
+        /// converts an absolute URI into one relative to the base URI prefix.
+        /// </summary>
+        /// <param name="baseUri">The base URI prefix (e.g., previously returned by <see cref="GetBaseUri"/>).</param>
+        /// <param name="locationAbsolute">An absolute URI that is within the space of the base URI.</param>
+        /// <returns>A relative URI path.</returns>
+        public string ToBaseRelativePath(string baseUri, string locationAbsolute)
         {
-            if (absoluteUri.StartsWith(baseUri, StringComparison.Ordinal))
+            if (locationAbsolute.StartsWith(baseUri, StringComparison.Ordinal))
             {
                 // The absolute URI must be of the form "{baseUri}something" (where
                 // baseUri ends with a slash), and from that we return "something"
-                return absoluteUri.Substring(baseUri.Length);
+                return locationAbsolute.Substring(baseUri.Length);
             }
-            else if ($"{absoluteUri}/".Equals(baseUri, StringComparison.Ordinal))
+            else if ($"{locationAbsolute}/".Equals(baseUri, StringComparison.Ordinal))
             {
                 // Special case: for the base URI "/something/", if you're at
                 // "/something" then treat it as if you were at "/something/" (i.e.,
@@ -69,16 +130,10 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
                 return string.Empty;
             }
 
-            throw new ArgumentException($"The URI '{absoluteUri}' is not contained by the base URI '{baseUri}'.");
+            throw new ArgumentException($"The URI '{locationAbsolute}' is not contained by the base URI '{baseUri}'.");
         }
 
-        internal void NotifyLocationChanged(string newAbsoluteUri)
-        {
-            _uriAbsolute = newAbsoluteUri;
-            OnLocationChanged?.Invoke(null, newAbsoluteUri);
-        }
-
-        static string ToBaseUri(string absoluteBaseUri)
+        private static string ToBaseUri(string absoluteBaseUri)
         {
             if (absoluteBaseUri != null)
             {

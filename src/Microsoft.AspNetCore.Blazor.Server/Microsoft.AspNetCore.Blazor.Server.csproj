@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Include="..\Microsoft.AspNetCore.Blazor.Browser\Hosting\ConventionBasedStartup.cs" Link="Hosting\ConventionBasedStartup.cs" />
     <Compile Include="..\Microsoft.AspNetCore.Blazor.Browser\Hosting\IBlazorStartup.cs" Link="Hosting\IBlazorStartup.cs" />
+    <Compile Include="..\Microsoft.AspNetCore.Blazor.Browser\Services\BrowserUriHelperInterop.cs" Link="Circuits\BrowserUriHelperInterop.cs" />
   </ItemGroup>
 
   <ItemGroup>

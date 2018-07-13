@@ -1,9 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.AspNetCore.Blazor.Services;
 using Microsoft.JSInterop;
-using System;
+using Interop = Microsoft.AspNetCore.Blazor.Browser.Services.BrowserUriHelperInterop;
 
 namespace Microsoft.AspNetCore.Blazor.Browser.Services
 {
@@ -18,7 +19,6 @@ namespace Microsoft.AspNetCore.Blazor.Browser.Services
         // that's fine too - they will just share their internal state.
         // This class will never be used during server-side prerendering, so we don't have thread-
         // safety concerns due to the static state.
-        const string _functionPrefix = "Blazor._internal.uriHelper.";
         static bool _hasEnabledNavigationInterception;
         static string _cachedAbsoluteUri;
         static EventHandler<string> _onLocationChanged;
@@ -64,9 +64,7 @@ namespace Microsoft.AspNetCore.Blazor.Browser.Services
                 // service needs to be rebuilt. It will most likely require you to supply
                 // the current URL and base href as constructor parameters so it has that
                 // info synchronously.
-                var newUri = ((IJSInProcessRuntime)JSRuntime.Current)
-                    .Invoke<string>(_functionPrefix + "getLocationHref");
-
+                var newUri = ((IJSInProcessRuntime)JSRuntime.Current).Invoke<string>(Interop.GetLocationHref);
                 if (_hasEnabledNavigationInterception)
                 {
                     // Once we turn on navigation interception, we no longer have to query
@@ -119,7 +117,7 @@ namespace Microsoft.AspNetCore.Blazor.Browser.Services
                 throw new ArgumentNullException(nameof(uri));
             }
 
-            JSRuntime.Current.InvokeAsync<object>(_functionPrefix + "navigateTo", uri);
+            ((IJSInProcessRuntime)JSRuntime.Current).Invoke<object>(Interop.NavigateTo, uri);
         }
 
         private static void EnsureBaseUriPopulated()
@@ -129,8 +127,7 @@ namespace Microsoft.AspNetCore.Blazor.Browser.Services
             {
                 // As described in other comment block above, BrowserUriHelper is only for
                 // client -side (Mono) use, so it's OK to rely on synchrony here.
-                var baseUriAbsolute = ((IJSInProcessRuntime)JSRuntime.Current)
-                    .Invoke<string>(_functionPrefix + "getBaseURI");
+                var baseUriAbsolute = ((IJSInProcessRuntime)JSRuntime.Current).Invoke<string>(Interop.GetBaseUri);
 
                 _baseUriStringWithTrailingSlash = ToBaseUri(baseUriAbsolute);
                 _baseUriWithTrailingSlash = new Uri(_baseUriStringWithTrailingSlash);
@@ -155,7 +152,10 @@ namespace Microsoft.AspNetCore.Blazor.Browser.Services
             if (!_hasEnabledNavigationInterception)
             {
                 _hasEnabledNavigationInterception = true;
-                JSRuntime.Current.InvokeAsync<object>(_functionPrefix + "enableNavigationInterception");
+                ((IJSInProcessRuntime)JSRuntime.Current).Invoke<object>(
+                    Interop.EnableNavigationInterception,
+                    typeof(BrowserUriHelper).Assembly.GetName().Name,
+                    nameof(NotifyLocationChanged));
             }
         }
 

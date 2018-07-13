@@ -122,22 +122,8 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
                 await SynchronizationContext.Invoke(() =>
                 {
                     SetCurrentCircuitHost(this);
-
-                    switch (methodIdentifier)
-                    {
-                        // Massive hack. Need a common system for dispatching calls within the context of
-                        // a specific circuit / service provider / etc. Maybe we just need to have an
-                        // asynclocal Circuit.Current, just like JSRuntime.Current, then if the call target
-                        // is a static it can obtain the services it needs to invoke instance methods on.
-                        case "NotifyLocationChanged":
-                            var args = Json.Deserialize<string[]>(argsJson);
-                            var uriHelper = (RemoteUriHelper)Services.GetRequiredService<IUriHelper>();
-                            uriHelper.NotifyLocationChanged(args[0]);
-                            break;
-                        default:
-                            DotNetDispatcher.BeginInvoke(callId, assemblyName, methodIdentifier, argsJson);
-                            break;
-                    }
+                    
+                    DotNetDispatcher.BeginInvoke(callId, assemblyName, methodIdentifier, argsJson);
                 });
             }
             catch (Exception ex)
