@@ -19,6 +19,8 @@ function boot() {
     renderBatch(browserRendererId, new OutOfProcessRenderBatch(batchData));
   });
 
+  connection.on('JS.Error', unhandledError);
+
   connection.start()
     .then(() => {
       DotNet.attachDispatcher({
@@ -33,7 +35,11 @@ function boot() {
         uriHelperFunctions.getBaseURI()
       );
     })
-    .catch(err => console.error(err));
+    .catch(unhandledError);
+}
+
+function unhandledError() {
+  err => console.error(err);
 }
 
 boot();

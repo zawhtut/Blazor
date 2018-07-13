@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Blazor.Browser.Rendering;
+using Microsoft.AspNetCore.Blazor.Builder;
 using Microsoft.AspNetCore.Blazor.Rendering;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
@@ -19,10 +20,10 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
         {
             _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
-            StartupActions = new Dictionary<PathString, Action<RemoteRenderer>>();
+            StartupActions = new Dictionary<PathString, Action<IBlazorApplicationBuilder>>();
         }
 
-        public Dictionary<PathString, Action<RemoteRenderer>> StartupActions { get; }
+        public Dictionary<PathString, Action<IBlazorApplicationBuilder>> StartupActions { get; }
 
         public override CircuitHost CreateCircuitHost(HttpContext httpContext, IClientProxy client)
         {
@@ -34,10 +35,18 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
 
             var scope = _scopeFactory.CreateScope();
             var jsRuntime = new RemoteJSRuntime(client);
-            var renderer = new RemoteRenderer(scope.ServiceProvider, jsRuntime, client);
+            var rendererRegistry = new RendererRegistry();
+            var renderer = new RemoteRenderer(scope.ServiceProvider, rendererRegistry, jsRuntime, client);
             var synchronizationContext = new CircuitSynchronizationContext();
 
-            var circuitHost = new CircuitHost(scope, renderer, config, jsRuntime, synchronizationContext);
+            var circuitHost = new CircuitHost(
+                scope,
+                client,
+                rendererRegistry,
+                renderer,
+                config,
+                jsRuntime,
+                synchronizationContext);
 
             // Initialize per-circuit data that services need
             (circuitHost.Services.GetRequiredService<IJSRuntimeAccessor>() as DefaultJSRuntimeAccessor).JSRuntime = jsRuntime;

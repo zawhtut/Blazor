@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.AspNetCore.Blazor.Browser.Rendering;
+using Microsoft.AspNetCore.Blazor.Builder;
+using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.AspNetCore.Blazor.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +15,52 @@ namespace Microsoft.AspNetCore.Builder
     public static class ServerSideBlazorApplicationBuilderExtensions
     {
         /// <summary>
+        /// Registers Server-Side Blazor in the pipeline.
+        /// </summary>
+        /// <param name="builder">The <see cref="IApplicationBuilder"/>.</param>
+        /// <typeparam name="TStartup">A Blazor startup type.</typeparam>
+        /// <returns>The <see cref="IApplicationBuilder"/>.</returns>
+        public static IApplicationBuilder UseServerSideBlazor<TStartup>(this IApplicationBuilder builder)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            return UseServerSideBlazor(builder, typeof(TStartup));
+        }
+
+        /// <summary>
+        /// Registers Server-Side Blazor in the pipeline.
+        /// </summary>
+        /// <param name="builder">The <see cref="IApplicationBuilder"/>.</param>
+        /// <param name="startupType">A Blazor startup type.</param>
+        /// <returns>The <see cref="IApplicationBuilder"/>.</returns>
+        public static IApplicationBuilder UseServerSideBlazor(
+            this IApplicationBuilder builder,
+            Type startupType)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (startupType == null)
+            {
+                throw new ArgumentNullException(nameof(startupType));
+            }
+
+            var startup = builder.ApplicationServices.GetRequiredService(startupType);
+            var wrapper = new ConventionBasedStartup(startup);
+            Action<IBlazorApplicationBuilder> configure = (b) =>
+            {
+                wrapper.Configure(b, b.Services);
+            };
+
+            return UseServerSideBlazorCore(builder, configure);
+        }
+
+        /// <summary>
         /// Registers middleware for Server-Side Blazor.
         /// </summary>
         /// <param name="builder">The <see cref="IApplicationBuilder"/>.</param>
@@ -21,12 +68,29 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>The <see cref="IApplicationBuilder"/>.</returns>
         public static IApplicationBuilder UseServerSideBlazor(
             this IApplicationBuilder builder,
-            Action<RemoteRenderer> startupAction)
+            Action<IBlazorApplicationBuilder> startupAction)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (startupAction == null)
+            {
+                throw new ArgumentNullException(nameof(startupAction));
+            }
+
+            return UseServerSideBlazorCore(builder, startupAction);
+        }
+
+        private static IApplicationBuilder UseServerSideBlazorCore(
+            IApplicationBuilder builder,
+            Action<IBlazorApplicationBuilder> configure)
         {
             var endpoint = "/_blazor";
 
             var factory = (DefaultCircuitFactory)builder.ApplicationServices.GetRequiredService<CircuitFactory>();
-            factory.StartupActions.Add(endpoint, startupAction);
+            factory.StartupActions.Add(endpoint, configure);
 
             builder.UseSignalR(route => route.MapHub<BlazorHub>(endpoint));
 

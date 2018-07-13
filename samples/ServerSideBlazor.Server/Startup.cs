@@ -3,7 +3,6 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.DependencyInjection;
 using ServerSideBlazor.Client;
 
@@ -13,7 +12,8 @@ namespace ServerSideBlazor.Server
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddServerSideBlazor();
+            // Adds the Server-Side Blazor services, and those registered by the client startup.
+            services.AddServerSideBlazor<Client.Startup>();
 
             // Since Blazor is running on the server, we can use an application service
             // to read the forecast data.
@@ -27,10 +27,8 @@ namespace ServerSideBlazor.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseServerSideBlazor(renderer =>
-            {
-                renderer.AddComponent<App>("app");
-            });
+            // Use component registrations from the client startup.
+            app.UseServerSideBlazor<Client.Startup>();
 
             // Enables serving files from the client project.
             app.UseBlazor<App>();

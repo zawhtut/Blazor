@@ -10,32 +10,37 @@ using Microsoft.JSInterop;
 
 namespace Microsoft.AspNetCore.Blazor.Browser.Rendering
 {
-    internal class RemoteRenderer : Renderer, IDisposable
+    internal class RemoteRenderer : Renderer
     {
         private readonly int _id;
         private readonly IClientProxy _client;
         private readonly IJSRuntime _jsRuntime;
+        private readonly RendererRegistry _rendererRegistry;
 
         /// <summary>
         /// Notifies when a rendering exception occured.
         /// </summary>
-        public event EventHandler<Exception> OnException;
+        public event EventHandler<Exception> UnhandledException;
 
         /// <summary>
         /// Creates a new <see cref="RemoteRenderer"/>.
         /// </summary>
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/>.</param>
+        /// <param name="rendererRegistry">The <see cref="RendererRegistry"/>.</param>
         /// <param name="jsRuntime">The <see cref="IJSRuntime"/>.</param>
         /// <param name="client">The <see cref="IClientProxy"/>.</param>
         public RemoteRenderer(
             IServiceProvider serviceProvider,
+            RendererRegistry rendererRegistry,
             IJSRuntime jsRuntime,
             IClientProxy client)
             : base(serviceProvider)
         {
+            _rendererRegistry = rendererRegistry;
             _jsRuntime = jsRuntime;
             _client = client;
-            _id = RendererRegistry.Current.Add(this);
+
+            _id = _rendererRegistry.Add(this);
         }
 
         /// <summary>
@@ -76,7 +81,7 @@ namespace Microsoft.AspNetCore.Blazor.Browser.Rendering
         /// </summary>
         public void Dispose()
         {
-            RendererRegistry.Current.TryRemove(_id);
+            _rendererRegistry.TryRemove(_id);
         }
 
         /// <inheritdoc />
@@ -92,7 +97,7 @@ namespace Microsoft.AspNetCore.Blazor.Browser.Rendering
             {
                 if (t.IsFaulted)
                 {
-                    OnException?.Invoke(this, t.Exception);
+                    UnhandledException?.Invoke(this, t.Exception);
                 }
             });
         }
