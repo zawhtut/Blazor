@@ -15,8 +15,6 @@ namespace ServerSideBlazor.Client
         public void Configure(IBlazorApplicationBuilder app)
         {
             app.AddComponent<App>("app");
-
-            throw null;
         }
     }
 }

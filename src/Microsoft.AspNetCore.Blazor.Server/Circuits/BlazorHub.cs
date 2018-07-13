@@ -45,13 +45,15 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
             var uriHelper = (RemoteUriHelper)circuitHost.Services.GetRequiredService<IUriHelper>();
             uriHelper.Initialize(uriAbsolute, baseUriAbsolute);
 
+            // If initialization fails, this will throw. The caller will explode if they
+            // try to call into any interop API.
             await circuitHost.InitializeAsync();
             CircuitHost = circuitHost;
         }
-
+        
         public void BeginInvokeDotNetFromJS(string callId, string assemblyName, string methodIdentifier, string argsJson)
         {
-            CircuitHost.BeginInvokeDotNetFromJS(callId, assemblyName, methodIdentifier, argsJson);
+            EnsureCircuitHost().BeginInvokeDotNetFromJS(callId, assemblyName, methodIdentifier, argsJson);
         }
 
         private async void CircuitHost_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -61,11 +63,27 @@ namespace Microsoft.AspNetCore.Blazor.Server.Circuits
             {
                 _logger.LogWarning((Exception)e.ExceptionObject, "Unhandled Server-Side exception");
                 await circuitHost.Client.SendAsync("JS.Error", e.ExceptionObject);
+
+                // We generally can't abort the connection here since this is an async
+                // callback. The Hub has already been torn down. We'll rely on the
+                // client to abort the connection if we successfully transmit an error.
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to transmit exception to client");
             }
+        }
+
+        private CircuitHost EnsureCircuitHost()
+        {
+            var circuitHost = CircuitHost;
+            if (circuitHost == null)
+            {
+                var message = $"The {nameof(CircuitHost)} is null. This is due to an exception thrown during initialization.";
+                throw new InvalidOperationException(message);
+            }
+
+            return circuitHost;
         }
     }
 }

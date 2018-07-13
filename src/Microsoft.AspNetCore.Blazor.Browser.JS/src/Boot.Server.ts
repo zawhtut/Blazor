@@ -7,8 +7,10 @@ import { OutOfProcessRenderBatch } from './Rendering/RenderBatch/OutOfProcessRen
 import { internalFunctions as uriHelperFunctions } from './Services/UriHelper';
 import { renderBatch } from './Rendering/Renderer';
 
+let connection : signalR.HubConnection;
+
 function boot() {
-  const connection = new signalR.HubConnectionBuilder()
+  connection = new signalR.HubConnectionBuilder()
     .withUrl('/_blazor')
     .withHubProtocol(new MessagePackHubProtocol())
     .configureLogging(signalR.LogLevel.Information)
@@ -38,8 +40,18 @@ function boot() {
     .catch(unhandledError);
 }
 
-function unhandledError() {
-  err => console.error(err);
+function unhandledError(err) {
+  console.error(err);
+
+  // Disconnect on errors.
+  //
+  // TODO: it would be nice to have some kind of experience for what happens when you're
+  // trying to interact with an app that's disconnected.
+  //
+  // Trying to call methods on the connection after its been closed will throw.
+  if (connection) {
+    connection.stop();
+  }
 }
 
 boot();
