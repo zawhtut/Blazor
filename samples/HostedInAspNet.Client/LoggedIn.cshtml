@@ -1,0 +1,9 @@
+@using HostedInAspNet.Shared
+
+Hello, <strong>@User.UserName</strong>!
+
+<img src=@User.AvatarUrl />
+
+@functions {
+    [Parameter] UserInfo User { get; set; }
+}
