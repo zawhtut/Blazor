@@ -20,12 +20,6 @@ phases:
   - checkout: self
     clean: true
 
-  - task: NuGetCommand@2
-    displayName: Clear NuGet caches
-    inputs:
-      command: custom
-      arguments: 'locals all -clear'
-
   - ${{ parameters.beforeBuild }}
 
   - script: .\build.cmd -ci /p:Configuration=$(BuildConfiguration)
@@ -36,7 +30,7 @@ phases:
     condition: always()
     inputs:
       testRunner: vstest
-      testResultsFiles: 'artifacts/logs/**/*.trx'
+      testResultsFiles: '**/TestResults/*.trx'
 
   - task: PublishBuildArtifacts@1
     displayName: Upload artifacts
