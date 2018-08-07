@@ -1,0 +1,9 @@
+trigger:
+- master
+- release/*
+
+phases:
+- template: ../templates/blazor-build.yml
+  parameters:
+    variables:
+      SkipCodeSign: true
