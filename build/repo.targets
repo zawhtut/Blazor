@@ -7,7 +7,7 @@
     </Solutions>
   </ItemGroup>
 
-  <Target Name="CodeSign" AfterTargets="Package" DependsOnTargets="GetToolsets">
+  <Target Name="CodeSign" AfterTargets="Package" DependsOnTargets="GetToolsets" Condition=" '$(SkipCodeSign)' != 'true' AND '$(OS)' == 'Windows_NT' ">
     <MSBuild Projects="$(MSBuildThisFileDirectory)sign.proj"
              Targets="Restore;CodeSign"
              Properties="VisualStudioMSBuildx86Path=$(VisualStudioMSBuildx86Path)" />

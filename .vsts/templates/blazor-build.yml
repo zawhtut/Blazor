@@ -30,7 +30,7 @@ phases:
     condition: always()
     inputs:
       testRunner: vstest
-      testResultsFiles: '**/TestResults/*.trx'
+      testResultsFiles: 'artifacts/logs/**/*.trx'
 
   - task: PublishBuildArtifacts@1
     displayName: Upload artifacts
